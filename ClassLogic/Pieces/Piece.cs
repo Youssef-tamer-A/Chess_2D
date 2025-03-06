@@ -46,5 +46,24 @@ namespace ChessLogic
                 return piece != null && piece.Type == PieceType.king;
             });
         }
+
+        public virtual string ToFenSymbol()
+        {
+            // Type و Color افترض أنك معرفهم في Piece
+            // مثال:
+            char symbol = Type switch
+            {
+                PieceType.pawn => 'p',
+                PieceType.knight => 'n',
+                PieceType.bishop => 'b',
+                PieceType.rook => 'r',
+                PieceType.queen => 'q',
+                PieceType.king => 'k',
+                _ => '?'
+            };
+
+            // لو القطعة بيضاء، خلّي الحرف UpperCase
+            return Color == Player.White ? symbol.ToString().ToUpper() : symbol.ToString();
+        }
     }
 }
