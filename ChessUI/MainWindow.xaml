@@ -1,0 +1,33 @@
+﻿<Window x:Class="ChessUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ChessUI"
+        Title="Chess" Width="600" Height="600"
+        Icon="/Assets/chess.ico"
+        WindowStartupLocation="CenterScreen"
+        Background="#101010">
+
+    <Viewbox>
+        <Grid x:Name="MainContainer">
+            <!-- Chess Board (hidden initially) -->
+            <Grid x:Name="BoardGrid"
+                  Width="600"
+                  Height="600"
+                  MouseDown="BoardGriad_MouseDown">
+
+                <Grid.Background>
+                    <ImageBrush ImageSource="Assets/Board.png" />
+                </Grid.Background>
+                <UniformGrid x:Name="HighlightGrid" Rows="8" Columns="8"/>
+                <UniformGrid x:Name="PieceGrid" Rows="8" Columns="8"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Grid>
+
+            <!-- Menu Container (shown initially) -->
+            <ContentControl x:Name="MenuContainer" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"/>
+        </Grid>
+    </Viewbox>
+</Window>
+

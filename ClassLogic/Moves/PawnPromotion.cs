@@ -1,0 +1,44 @@
+﻿using ChessLogic.Pieces;
+
+namespace ChessLogic
+{
+    public class PawnPromotion : Move
+    {
+        public override MoveType Type => MoveType.PawnPromotion;
+
+        public override Position FromPos { get; }
+
+        public override Position ToPos { get; }
+
+        private readonly PieceType newType;
+
+        public PawnPromotion(Position from, Position to, PieceType newType)
+        {
+            FromPos = from;
+            ToPos = to;
+            this.newType = newType;
+        }
+
+        private Piece CreatePromotedPiece(Player color)
+        {
+            return newType switch
+            {
+                PieceType.rook => new Rook(color),
+                PieceType.bishop => new Boshop(color),
+                PieceType.knight => new Knight(color),
+                _ => new Queen(color)
+            };
+        }
+
+        public override void Execute(Board board)
+        {
+            Piece pawn = board[FromPos];
+            board[FromPos] = null;
+
+            Piece promotionPiece = CreatePromotedPiece(pawn.Color);
+            promotionPiece.HasMoved = true;
+
+            board[ToPos] = promotionPiece;
+        }
+    }
+}
