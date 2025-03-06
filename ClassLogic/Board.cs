@@ -1,6 +1,7 @@
 ﻿using ChessLogic;
 using ChessLogic.Pieces;
 using System.Linq;
+using System.Text;
 
 namespace ChessLogic
 {
@@ -9,10 +10,12 @@ namespace ChessLogic
         private readonly Piece[,] Pieces = new Piece[8, 8];
 
         private readonly Dictionary<Player, Position> pawnSkipPositions = new Dictionary<Player, Position>
-        {
-            { Player.White, null },
-            { Player.Black, null }
-        };  
+            {
+                { Player.White, null },
+                { Player.Black, null }
+            };
+
+        public Player CurrentPlayer { get; set; } // Added property for CurrentPlayer
 
         public Piece this[int row, int col]
         {
@@ -68,8 +71,6 @@ namespace ChessLogic
             this[0, 5] = new Boshop(Player.Black);
             this[0, 6] = new Knight(Player.Black);
             this[0, 7] = new Rook(Player.Black);
-
-            
         }
 
         public static bool IsInside(Position pos)
@@ -77,15 +78,15 @@ namespace ChessLogic
             return pos.Row >= 0 && pos.Row < 8 && pos.Column >= 0 && pos.Column < 8;
         }
 
-        public bool IsEmaty(Position pos) 
+        public bool IsEmaty(Position pos)
         {
             return this[pos] == null;
         }
 
         public IEnumerable<Position> PiecePositions()
         {
-            for (int i = 0; i < 8; i++) 
-            { 
+            for (int i = 0; i < 8; i++)
+            {
                 for (int j = 0; j < 8; j++)
                 {
                     Position pos = new Position(i, j);
@@ -102,7 +103,7 @@ namespace ChessLogic
 
         public bool IsInCheck(Player player)
         {
-            return PiecePositionsFor(player.Opponent()).Any(pos => 
+            return PiecePositionsFor(player.Opponent()).Any(pos =>
             {
                 Piece piece = this[pos];
                 return piece.CanCaptureOpponentKing(pos, this);
@@ -119,6 +120,43 @@ namespace ChessLogic
             }
 
             return copy;
+        }
+
+        public string ToFenString()
+        {
+            // Implement FEN generation based on your board state
+            // This is a simplified example:
+            var fen = new StringBuilder();
+
+            for (int r = 0; r < 8; r++)
+            {
+                int emptyCount = 0;
+                for (int c = 0; c < 8; c++)
+                {
+                    var piece = this[new Position(r, c)];
+                    if (piece == null)
+                    {
+                        emptyCount++;
+                    }
+                    else
+                    {
+                        if (emptyCount > 0) fen.Append(emptyCount);
+                        fen.Append(piece.ToFenSymbol());
+                        emptyCount = 0;
+                    }
+                }
+                if (emptyCount > 0) fen.Append(emptyCount);
+                if (r < 7) fen.Append('/');
+            }
+
+            fen.Append($" {CurrentPlayer.ToString().Substring(0, 1).ToLower()}");
+            // Add castling rights, en passant, etc.
+            return fen.ToString();
+        }
+
+        public void MakeMove(Move move)
+        {
+            throw new NotImplementedException();
         }
     }
 }

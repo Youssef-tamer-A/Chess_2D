@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -26,6 +27,9 @@ public partial class MainWindow : Window
 
     private StartMenu _startMenu;
     private Board _currentBoard;
+
+    private StockfishManager stockfish;
+    private bool vsComputer;
 
     public MainWindow()
     {
@@ -132,8 +136,8 @@ public partial class MainWindow : Window
         promMenu.PieceSelected += type =>
         {
             MenuContainer.Content = null;
-            Move promMenu = new PawnPromotion(from, to, type);
-            HandleMove(promMenu);
+            Move promMove = new PawnPromotion(from, to, type);
+            HandleMove(promMove);
         };
     }
 
@@ -247,13 +251,78 @@ public partial class MainWindow : Window
 
     private void StartPlayerVsComputer()
     {
-        // Add computer logic later
-        MessageBox.Show("Computer mode coming soon!");
+        try
+        {
+            stockfish = new StockfishManager();
+            stockfish.Initialize();
+            vsComputer = true;
+            StartGame();
+        }
+        catch (FileNotFoundException)
+        {
+            MessageBox.Show("Stockfish engine not found! Computer mode unavailable.");
+            vsComputer = false;
+            ShowStartMenu();
+        }
     }
 
+    private async void HandlePlayerMove(Move move)
+    {
+        if (!vsComputer) return;
+
+        _currentBoard.MakeMove(move);
+        UpdateBoardDisplay();
+
+        if (_currentBoard.CurrentPlayer == Player.Black)
+        {
+            var fen = _currentBoard.ToFenString();
+            var bestMove = await Task.Run(() => stockfish.GetBestMove(fen));
+
+            if (bestMove != null)
+            {
+                var computerMove = ParseMove(bestMove); // Implement move parsing
+                _currentBoard.MakeMove(computerMove);
+                UpdateBoardDisplay();
+            }
+        }
+    }
     // Keep your existing board logic below
     private void InitializePieces() { /* ... */ }
     private void BoardGriad_MouseDownStart(object sender, MouseButtonEventArgs e) { /* ... */ }
+    private void UpdateBoardDisplay()
+    {
+        DrawBoard(gameState.Board);
+        SetCursor(gameState.CurrentPlayer);
+    }
+    private Move ParseMove(string bestMove)
+    {
+        // Assuming the bestMove is in UCI format (e.g., "e2e4", "e7e8q")
+        Position from = new Position(bestMove[1] - '1', bestMove[0] - 'a');
+        Position to = new Position(bestMove[3] - '1', bestMove[2] - 'a');
+        PieceType? promotion = null;
+
+        if (bestMove.Length == 5)
+        {
+            promotion = bestMove[4] switch
+            {
+                'q' => PieceType.queen,
+                'r' => PieceType.rook,
+                'b' => PieceType.bishop,
+                'n' => PieceType.knight,
+                _ => throw new ArgumentException("Invalid promotion piece type")
+            };
+        }
+
+        // Assuming Move is an abstract class, we need to create an instance of a derived class
+        if (promotion.HasValue)
+        {
+            return new PawnPromotion(from, to, promotion.Value);
+        }
+        else
+        {
+            return new NormalMove(from, to);
+        }
+    }
 }
 
 

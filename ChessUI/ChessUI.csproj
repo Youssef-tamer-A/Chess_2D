@@ -16,6 +16,7 @@
     <None Remove="Assets\chess.ico" />
     <None Remove="Assets\CursorB.cur" />
     <None Remove="Assets\CursorW.cur" />
+    <None Remove="Assets\Enginess\stockfish.exe" />
     <None Remove="Assets\KingB.png" />
     <None Remove="Assets\KingW.png" />
     <None Remove="Assets\KnightB.png" />
@@ -41,6 +42,9 @@
     <Resource Include="Assets\chess.ico" />
     <Resource Include="Assets\CursorB.cur" />
     <Resource Include="Assets\CursorW.cur" />
+    <Resource Include="Assets\Enginess\stockfish.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\KingB.png" />
     <Resource Include="Assets\KingW.png" />
     <Resource Include="Assets\KnightB.png" />
